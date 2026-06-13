@@ -11,6 +11,7 @@ import {
   Zap,
   Bell,
   Search,
+  ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -20,6 +21,7 @@ const navItems = [
   { to: "/qrcodes/new", label: "创建二维码", icon: PlusCircle },
   { to: "/batch", label: "批量生成", icon: Layers3 },
   { to: "/export", label: "导出中心", icon: Download },
+  { to: "/backup", label: "容灾备份", icon: ShieldCheck },
 ];
 
 const breadcrumbMap: Record<string, { label: string; parent?: string }> = {
@@ -30,6 +32,7 @@ const breadcrumbMap: Record<string, { label: string; parent?: string }> = {
   stats: { label: "数据统计", parent: "qrcodes" },
   batch: { label: "批量生成" },
   export: { label: "导出中心" },
+  backup: { label: "容灾备份" },
 };
 
 export default function MainLayout() {

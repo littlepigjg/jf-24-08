@@ -21,7 +21,7 @@ export async function handleExport(
   const validation = validateIdsExplicit(idsResult)
 
   if (!validation.valid) {
-    sendError(res, 400, validation.error)
+    sendError(res, 400, (validation as { valid: false; error: string }).error)
     return
   }
 

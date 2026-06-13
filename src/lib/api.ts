@@ -9,6 +9,12 @@ import type {
   QrCodeStats,
   PagedResult,
   ApiResponse,
+  BackupRecord,
+  BackupStats,
+  BackupScheduleConfig,
+  RetentionPolicy,
+  VerifyResult,
+  RestoreResult,
 } from "@shared/types";
 
 const API_BASE = "/api";
@@ -138,5 +144,89 @@ export const api = {
     if (params?.page) q.set("page", String(params.page));
     if (params?.pageSize) q.set("pageSize", String(params.pageSize));
     return request<PagedResult<BatchTask>>(`/export/tasks${q.toString() ? `?${q.toString()}` : ""}`);
+  },
+
+  backup: {
+    getStats(): Promise<BackupStats> {
+      return request<BackupStats>("/backup/stats");
+    },
+    listBackups(): Promise<BackupRecord[]> {
+      return request<BackupRecord[]>("/backup/backups");
+    },
+    getBackup(id: string): Promise<BackupRecord> {
+      return request<BackupRecord>(`/backup/backups/${id}`);
+    },
+    createFullBackup(metadata?: Record<string, unknown>): Promise<BackupRecord> {
+      return request<BackupRecord>("/backup/backups/full", {
+        method: "POST",
+        body: JSON.stringify({ metadata }),
+      });
+    },
+    createIncrementalBackup(metadata?: Record<string, unknown>): Promise<BackupRecord> {
+      return request<BackupRecord>("/backup/backups/incremental", {
+        method: "POST",
+        body: JSON.stringify({ metadata }),
+      });
+    },
+    verifyBackup(id: string): Promise<VerifyResult> {
+      return request<VerifyResult>(`/backup/backups/${id}/verify`, { method: "POST" });
+    },
+    verifyAll(): Promise<VerifyResult[]> {
+      return request<VerifyResult[]>("/backup/verify/all", { method: "POST" });
+    },
+    verifyLatest(): Promise<VerifyResult> {
+      return request<VerifyResult>("/backup/verify/latest", { method: "POST" });
+    },
+    restore(id: string, options?: { targetPath?: string; dryRun?: boolean }): Promise<RestoreResult> {
+      return request<RestoreResult>(`/backup/restore/${id}`, {
+        method: "POST",
+        body: JSON.stringify(options || {}),
+      });
+    },
+    dryRunRestore(id: string): Promise<RestoreResult> {
+      return request<RestoreResult>(`/backup/restore/${id}/dry-run`, { method: "POST" });
+    },
+    restoreDrill(backupId?: string): Promise<RestoreResult> {
+      return request<RestoreResult>("/backup/restore/drill", {
+        method: "POST",
+        body: JSON.stringify({ backupId }),
+      });
+    },
+    restoreLatest(): Promise<RestoreResult> {
+      return request<RestoreResult>("/backup/restore/latest", { method: "POST" });
+    },
+    findPoint(time: string): Promise<BackupRecord> {
+      return request<BackupRecord>("/backup/find-point", {
+        method: "POST",
+        body: JSON.stringify({ time }),
+      });
+    },
+    getSchedule(): Promise<BackupScheduleConfig & { running: boolean; nextFullBackupTime: string; nextIncrementalBackupTime: string }> {
+      return request("/backup/schedule");
+    },
+    updateSchedule(config: Partial<BackupScheduleConfig>): Promise<BackupScheduleConfig & { running: boolean }> {
+      return request("/backup/schedule", {
+        method: "PUT",
+        body: JSON.stringify(config),
+      });
+    },
+    startScheduler(): Promise<void> {
+      return request("/backup/schedule/start", { method: "POST" });
+    },
+    stopScheduler(): Promise<void> {
+      return request("/backup/schedule/stop", { method: "POST" });
+    },
+    getRetentionPolicy(): Promise<RetentionPolicy> {
+      return request("/backup/retention");
+    },
+    updateRetentionPolicy(policy: Partial<RetentionPolicy>): Promise<RetentionPolicy> {
+      return request("/backup/retention", {
+        method: "PUT",
+        body: JSON.stringify(policy),
+      });
+    },
+    cleanup(): Promise<{ deleted: string[] }> {
+      return request("/backup/cleanup", { method: "POST" });
+    },
   },
 };

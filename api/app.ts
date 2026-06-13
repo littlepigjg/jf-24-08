@@ -12,6 +12,7 @@ import qrcodesRoutes from './routes/qrcodes.js'
 import statsRoutes from './routes/stats.js'
 import batchRoutes from './routes/batch.js'
 import exportRoutes from './routes/export.js'
+import backupRoutes from './routes/backup.js'
 import { RedirectService } from './services/RedirectService.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -43,6 +44,7 @@ app.use('/api/qrcodes', qrcodesRoutes)
 app.use('/api/stats', statsRoutes)
 app.use('/api/batch', batchRoutes)
 app.use('/api/export', exportRoutes)
+app.use('/api/backup', backupRoutes)
 
 app.use(
   '/api/health',
